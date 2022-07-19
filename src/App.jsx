@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext } from 'react'
 import './App.scss'
 import axios from './axios'
 
@@ -19,11 +19,35 @@ import { UserContext } from './UserContext'
 
 function App() {
 	const [rows, setRows] = React.useState([])
-	const [loading, setLoading] = React.useState(false)
+	const [sortRowsArr, setSortRowsArr] = React.useState([])
+	const [loading, setLoading] = React.useState(true)
 	const [currentPage, setCurrentPage] = React.useState(1)
+
 	const [postsPerPage] = React.useState(10)
 
 	const { nameColumn } = useContext(UserContext)
+	const { search } = useContext(UserContext)
+
+	// Получаем данные для таблицы
+	React.useEffect(() => {
+		async function fetchTableRows() {
+			try {
+				//Загружается
+				setLoading(false)
+				//Запрашиваем таблицу
+				const { data } = await axios.get(`/get`)
+
+				setRows(data)
+				//Загрузилась
+				setLoading(true)
+			} catch (err) {
+				//Запрос не удался
+				console.warn(err)
+				alert('Request failed')
+			}
+		}
+		fetchTableRows()
+	}, [])
 
 	//Сортируем по названию колонки
 	function SortArrayByNameColumn(x, y) {
@@ -49,44 +73,31 @@ function App() {
 	}
 	rows.sort(SortArrayByNameColumn)
 
-	//Тут остановился пытаясь сделать поиск
-
-	// const finded = (rows) => {
-	// 	// console.log('🚀 rows', rows)
-	// 	// console.log(rows.includes('Vipe'))
-	// 	rows.push(rows.find((row) => row?.name.includes('Vipe')))
-	// 	console.log(
-	// 		'🚀 rows.push',
-	// 		rows.push(rows.find((row) => row?.name.includes('Vipe'))),
-	// 	)
-	// }
-	// finded(rows)
-
-	// Получаем данные для таблицы
+	//Поиск слов
 	React.useEffect(() => {
-		async function fetchTableRows() {
-			try {
-				//Загружается
-				setLoading(true)
-				//Запрашиваем таблицу
-				const { data } = await axios.get(`/get`)
+		if (search) {
+			const wordSearch = search.toLowerCase()
 
-				setRows(data)
-				//Загрузилась
-				setLoading(false)
-			} catch (err) {
-				//Запрос не удался
-				console.warn(err)
-				alert('Request failed')
+			const sortSearchArr = []
+
+			for (const name in rows) {
+				if (Object.hasOwnProperty.call(rows, name)) {
+					const i = rows[name]
+					if (i.name.toLowerCase().includes(wordSearch)) {
+						sortSearchArr.push(i)
+					}
+				}
 			}
+			setSortRowsArr(sortSearchArr)
+		} else {
+			setSortRowsArr(rows)
 		}
-		fetchTableRows()
-	}, [])
+	}, [loading, search])
 
 	// Получаем сколько кнопок пагинации будет
 	const indexOfLastPost = currentPage * postsPerPage
 	const indexOfFirstPost = indexOfLastPost - postsPerPage
-	const currentRows = rows.slice(indexOfFirstPost, indexOfLastPost)
+	const currentRows = sortRowsArr.slice(indexOfFirstPost, indexOfLastPost)
 
 	// Change page
 	const paginate = (pageNumber) => setCurrentPage(pageNumber)
@@ -98,7 +109,7 @@ function App() {
 				<div className='table__container'>
 					<Pagination
 						postsPerPage={postsPerPage}
-						totalRows={rows.length}
+						totalRows={sortRowsArr.length}
 						paginate={paginate}
 						loading={loading}
 					/>

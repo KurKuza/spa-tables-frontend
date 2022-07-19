@@ -4,10 +4,10 @@ export const UserContext = createContext({ nameColumn: '' })
 
 export const UserProvider = ({ children }) => {
 	const [nameColumn, setNameColumn] = useState('')
-	const [searchValue, setSearchValue] = useState('')
+	const [search, setSearch] = useState('')
 
 	return (
-		<UserContext.Provider value={{ nameColumn, setNameColumn, searchValue, setSearchValue }}>
+		<UserContext.Provider value={{ nameColumn, setNameColumn, search, setSearch }}>
 			{children}
 		</UserContext.Provider>
 	)

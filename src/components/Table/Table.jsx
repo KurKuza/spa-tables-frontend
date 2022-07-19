@@ -21,7 +21,7 @@ function Table({ rows, loading }) {
 	return (
 		<section className='table'>
 			<div className='table__container'>
-				{loading ? (
+				{!loading ? (
 					'Loading..'
 				) : (
 					<div style={{ position: 'relative' }}>

@@ -4,6 +4,7 @@ import iconFilterFilled from '../assets/img/codicon_filter-filled.svg'
 import icondropDown from '../assets/img/fe_drop-down.svg'
 import iconClose from '../assets/img/close.svg'
 import { UserContext } from './../UserContext'
+import cn from 'classnames'
 
 function Sort({ keyNames }) {
 	const [open, setOpen] = React.useState(false)
@@ -11,9 +12,15 @@ function Sort({ keyNames }) {
 	const [selectSearch, setSelectSearch] = React.useState('')
 
 	const sortRef = React.useRef(null)
+	const searchRef = React.useRef('')
 	const selectRef = React.useRef(selectSearch)
 
+	const { setSearch } = useContext(UserContext)
 	const { setNameColumn } = useContext(UserContext)
+
+	React.useEffect(() => {
+		setSearch(searchRef.current.value)
+	}, [searchRef])
 
 	// Исключаем слово 'date' из рендеринга
 	let exclusion = keyNames.indexOf('date')
@@ -35,6 +42,9 @@ function Sort({ keyNames }) {
 		return () => document.body.removeEventListener('click', handleClickOutside)
 	}, [])
 
+	function Search(val) {		
+		setSearch(val)
+	}
 
 	return (
 		<div ref={sortRef} className='Sort'>
@@ -45,71 +55,72 @@ function Sort({ keyNames }) {
 					alt='icon'
 				/>
 			</button>
-
-			{open && (
-				<div className={'sort__popup'}>
-					<ul>
-						<li>
-							<div className='select'>
-								<input
-									ref={selectRef}
-									value={selectSearch}
-									disabled
-									style={{ textTransform: 'capitalize' }}
-									className='input'
-								/>
-								<img
-									className={
-										dropDown === true ? 'icondropDown active' : 'icondropDown'
-									}
-									onClick={() => setDropDown(!dropDown)}
-									src={icondropDown}
-									alt='icon'
-								/>
-								<img
-									onClick={() => {
-										setSelectSearch('')
-										setNameColumn('')
-									}}
-									src={iconClose}
-								/>
-								{dropDown && (
-									<div className='sort__popup_name'>
-										<ul>
-											{keyNames?.map((name, i) => (
-												<li
-													onClick={() => {
-														setSelectSearch(name)
-														setNameColumn(name)
-													}}
-													key={i}
-													style={{ textTransform: 'capitalize' }}>
-													{name}
-												</li>
-											))}
-										</ul>
-									</div>
-								)}
-							</div>
-						</li>
-						<li>
-							<input className='Search input' />
-						</li>
-						{/* onChange={(value) => setSearchValue(value)} */}
-						<li>
-							<button className='Сondition__button'> = </button>
-							<button className='Сondition__button'> ?= </button>
-							<button className='Сondition__button'> ᐱ </button>
-							<button className='Сondition__button'> ᐯ </button>
-						</li>
-						{/* <li>
+			<div className={cn('sort__popup', { active: open })}>
+				<ul>
+					<li>
+						<div className='select'>
+							<input
+								ref={selectRef}
+								value={selectSearch}
+								disabled
+								style={{ textTransform: 'capitalize' }}
+								className='input'
+							/>
+							<img
+								className={
+									dropDown === true ? 'icondropDown active' : 'icondropDown'
+								}
+								onClick={() => setDropDown(!dropDown)}
+								src={icondropDown}
+								alt='icon'
+							/>
+							<img
+								onClick={() => {
+									setSelectSearch('')
+									setNameColumn('')
+								}}
+								src={iconClose}
+							/>
+							{dropDown && (
+								<div className='sort__popup_name'>
+									<ul>
+										{keyNames?.map((name, i) => (
+											<li
+												onClick={() => {
+													setSelectSearch(name)
+													setNameColumn(name)
+												}}
+												key={i}
+												style={{ textTransform: 'capitalize' }}>
+												{name}
+											</li>
+										))}
+									</ul>
+								</div>
+							)}
+						</div>
+					</li>
+					<li>
+						<input
+							ref={searchRef}
+							onInput={() => Search(searchRef.current.value)}
+							className='Search input'
+						/>
+					</li>
+					{/* onChange={(value) => setSearchValue(value)} */}
+					<li>
+						<button className='Сondition__button'> = </button>
+						<button className='Сondition__button'> ?= </button>
+						<button className='Сondition__button'> ᐱ </button>
+						<button className='Сondition__button'> ᐯ </button>
+					</li>
+					{/* <li>
 							<button style={{ width: '100%', height: '45px' }} type='submit'>
 								Сортировать
 							</button> 
 						</li> */}
-					</ul>
-				</div>
-			)}
+				</ul>
+			</div>
 		</div>
 	)
 }

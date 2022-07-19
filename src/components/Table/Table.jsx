@@ -2,6 +2,7 @@ import React from 'react'
 import Sort from '../Sort'
 import RowBody from './RowBody'
 
+
 function Table({ rows, loading }) {
 	const [keyNames, setKeyNames] = React.useState([])
 
@@ -16,7 +17,6 @@ function Table({ rows, loading }) {
 		}
 		keys()
 	}, [rows])
-
 
 	return (
 		<section className='table'>

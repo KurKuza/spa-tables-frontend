@@ -5,6 +5,8 @@ import axios from './axios'
 import Table from './components/Table/Table'
 import Pagination from './components/Pagination'
 import { UserContext } from './UserContext'
+import { useDispatch, useSelector } from 'react-redux'
+import { setRows } from './Redux/slices/rowsSlice'
 
 /*
 	Сортировку не успел доделать
@@ -16,9 +18,10 @@ import { UserContext } from './UserContext'
 	Если я вам не подойду, то можно ревьюкода в виде комментариев?
 	я собираюсь все равно доделать
 */
-
 function App() {
-	const [rows, setRows] = React.useState([])
+	const dispatch = useDispatch()
+	const {rows} = useSelector((state) => state.rows)
+
 	const [sortRowsArr, setSortRowsArr] = React.useState([])
 	const [loading, setLoading] = React.useState(true)
 	const [currentPage, setCurrentPage] = React.useState(1)
@@ -37,7 +40,7 @@ function App() {
 				//Запрашиваем таблицу
 				const { data } = await axios.get(`/get`)
 
-				setRows(data)
+				dispatch(setRows(data))
 				//Загрузилась
 				setLoading(true)
 			} catch (err) {
@@ -49,29 +52,34 @@ function App() {
 		fetchTableRows()
 	}, [])
 
-	//Сортируем по названию колонки
-	function SortArrayByNameColumn(x, y) {
-		if (nameColumn === 'id') {
-			if (Number(x.id) < Number(y.id)) return -1
-			if (Number(x.id) > Number(y.id)) return 1
+	//Поиск слов
+	React.useEffect(() => {
+		//Сортируем по названию колонки
+		function SortArrayByNameColumn(x, y) {
+			if (nameColumn === 'id') {
+				if (Number(x.id) < Number(y.id)) return -1
+				if (Number(x.id) > Number(y.id)) return 1
+			}
+			if (nameColumn === '') {
+				if (Number(x.id) < Number(y.id)) return -1
+				if (Number(x.id) > Number(y.id)) return 1
+			}
+			if (nameColumn === 'name') {
+				return x.name.localeCompare(y.name)
+			}
+			if (nameColumn === 'quantity') {
+				if (x.quantity < y.quantity) return -1
+				if (x.quantity > y.quantity) return 1
+			}
+			if (nameColumn === 'distance') {
+				if (Number(x.distance) < Number(y.distance)) return -1
+				if (Number(x.distance) > Number(y.distance)) return 1
+			}
 		}
-		if (nameColumn === '') {
-			if (Number(x.id) < Number(y.id)) return -1
-			if (Number(x.id) > Number(y.id)) return 1
+		if (rows === []) {
+			rows.sort(SortArrayByNameColumn)
 		}
-		if (nameColumn === 'name') {
-			return x.name.localeCompare(y.name)
-		}
-		if (nameColumn === 'quantity') {
-			if (x.quantity < y.quantity) return -1
-			if (x.quantity > y.quantity) return 1
-		}
-		if (nameColumn === 'distance') {
-			if (Number(x.distance) < Number(y.distance)) return -1
-			if (Number(x.distance) > Number(y.distance)) return 1
-		}
-	}
-	rows.sort(SortArrayByNameColumn)
+	}, [loading])
 
 	//Поиск слов
 	React.useEffect(() => {

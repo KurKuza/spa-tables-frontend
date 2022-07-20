@@ -2,7 +2,6 @@ import React from 'react'
 import Sort from '../Sort'
 import RowBody from './RowBody'
 
-
 function Table({ rows, loading }) {
 	const [keyNames, setKeyNames] = React.useState([])
 
@@ -22,7 +21,9 @@ function Table({ rows, loading }) {
 		<section className='table'>
 			<div className='table__container'>
 				{!loading ? (
-					'Loading..'
+					<div className='spinner-container'>
+						<div className='loading-spinner'></div>
+					</div>
 				) : (
 					<div style={{ position: 'relative' }}>
 						<Sort keyNames={keyNames} />

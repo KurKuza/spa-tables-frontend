@@ -1,23 +1,24 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
-  value: 0,
+	nameColumn: '',
+	search: '',
 }
 
 export const counterSlice = createSlice({
-  name: 'counter',
-  initialState,
-  reducers: {
-    increment: (state) => {
-      state.value += 1
-    },
-    decrement: (state) => {
-      state.value -= 1
-    }
-  },
+	name: 'counter',
+	initialState,
+	reducers: {
+		setNameColumn: (state, action) => {
+			state.nameColumn = action.payload
+		},
+		setSearch: (state, action) => {
+			state.search = action.payload
+		},
+	},
 })
 
 // Action creators are generated for each case reducer function
-export const { increment, decrement } = counterSlice.actions
+export const { setNameColumn, setSearch } = counterSlice.actions
 
 export default counterSlice.reducer

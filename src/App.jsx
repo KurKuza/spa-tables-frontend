@@ -1,12 +1,12 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import './App.scss'
 import axios from './axios'
 
 import Table from './components/Table/Table'
 import Pagination from './components/Pagination'
-import { UserContext } from './UserContext'
+
 import { useDispatch, useSelector } from 'react-redux'
-import { setRows } from './Redux/slices/rowsSlice'
+import { setLoading, setRows } from './Redux/slices/rowsSlice'
 
 /*
 	Сортировку не успел доделать
@@ -20,29 +20,25 @@ import { setRows } from './Redux/slices/rowsSlice'
 */
 function App() {
 	const dispatch = useDispatch()
-	const {rows} = useSelector((state) => state.rows)
+	const { rows, loading } = useSelector((state) => state.rows)
+	const { nameColumn, search } = useSelector((state) => state.sort)
 
 	const [sortRowsArr, setSortRowsArr] = React.useState([])
-	const [loading, setLoading] = React.useState(true)
 	const [currentPage, setCurrentPage] = React.useState(1)
-
 	const [postsPerPage] = React.useState(10)
-
-	const { nameColumn } = useContext(UserContext)
-	const { search } = useContext(UserContext)
 
 	// Получаем данные для таблицы
 	React.useEffect(() => {
 		async function fetchTableRows() {
 			try {
 				//Загружается
-				setLoading(false)
+				dispatch(setLoading(false))
 				//Запрашиваем таблицу
 				const { data } = await axios.get(`/get`)
 
 				dispatch(setRows(data))
 				//Загрузилась
-				setLoading(true)
+				dispatch(setLoading(true))
 			} catch (err) {
 				//Запрос не удался
 				console.warn(err)
@@ -52,9 +48,8 @@ function App() {
 		fetchTableRows()
 	}, [])
 
-	//Поиск слов
+	//Сортируем по названию колонки
 	React.useEffect(() => {
-		//Сортируем по названию колонки
 		function SortArrayByNameColumn(x, y) {
 			if (nameColumn === 'id') {
 				if (Number(x.id) < Number(y.id)) return -1
@@ -76,10 +71,9 @@ function App() {
 				if (Number(x.distance) > Number(y.distance)) return 1
 			}
 		}
-		if (rows === []) {
-			rows.sort(SortArrayByNameColumn)
-		}
-	}, [loading])
+
+		setSortRowsArr(sortRowsArr.slice().sort(SortArrayByNameColumn))
+	}, [loading, nameColumn])
 
 	//Поиск слов
 	React.useEffect(() => {

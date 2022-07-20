@@ -4,7 +4,7 @@ import sortSlice from './slices/sortSlice'
 
 export const store = configureStore({
 	reducer: {
-		counter: sortSlice,
+		sort: sortSlice,
 		rows: rowsSlice,
 	},
 })

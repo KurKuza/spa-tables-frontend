@@ -1,26 +1,24 @@
 import React, { useContext } from 'react'
+import cn from 'classnames'
+
 import iconFilter from '../assets/img/codicon_filter.svg'
 import iconFilterFilled from '../assets/img/codicon_filter-filled.svg'
 import icondropDown from '../assets/img/fe_drop-down.svg'
 import iconClose from '../assets/img/close.svg'
-import { UserContext } from './../UserContext'
-import cn from 'classnames'
+
+import { setNameColumn, setSearch } from '../Redux/slices/sortSlice'
+import { useDispatch, useSelector } from 'react-redux'
 
 function Sort({ keyNames }) {
+	const dispatch = useDispatch()
+	const { search, nameColumn } = useSelector((state) => state.sort)
+
 	const [open, setOpen] = React.useState(false)
 	const [dropDown, setDropDown] = React.useState(false)
-	const [selectSearch, setSelectSearch] = React.useState('')
 
 	const sortRef = React.useRef(null)
-	const searchRef = React.useRef('')
-	const selectRef = React.useRef(selectSearch)
-
-	const { setSearch } = useContext(UserContext)
-	const { setNameColumn } = useContext(UserContext)
-
-	React.useEffect(() => {
-		setSearch(searchRef.current.value)
-	}, [searchRef])
+	const searchRef = React.useRef(search)
+	const selectRef = React.useRef('')
 
 	// Исключаем слово 'date' из рендеринга
 	let exclusion = keyNames.indexOf('date')
@@ -42,8 +40,8 @@ function Sort({ keyNames }) {
 		return () => document.body.removeEventListener('click', handleClickOutside)
 	}, [])
 
-	function Search(val) {		
-		setSearch(val)
+	function Search(val) {
+		dispatch(setSearch(val))
 	}
 
 	return (
@@ -61,7 +59,7 @@ function Sort({ keyNames }) {
 						<div className='select'>
 							<input
 								ref={selectRef}
-								value={selectSearch}
+								value={nameColumn}
 								disabled
 								style={{ textTransform: 'capitalize' }}
 								className='input'
@@ -75,9 +73,9 @@ function Sort({ keyNames }) {
 								alt='icon'
 							/>
 							<img
+								className='close'
 								onClick={() => {
-									setSelectSearch('')
-									setNameColumn('')
+									dispatch(setNameColumn(''))
 								}}
 								src={iconClose}
 							/>
@@ -87,8 +85,7 @@ function Sort({ keyNames }) {
 										{keyNames?.map((name, i) => (
 											<li
 												onClick={() => {
-													setSelectSearch(name)
-													setNameColumn(name)
+													dispatch(setNameColumn(name))
 												}}
 												key={i}
 												style={{ textTransform: 'capitalize' }}>

@@ -243,6 +243,7 @@ body.popup-show::after {
 					align-items: center;
 					padding: 20px;
 					border-radius: 5px;
+					transition: all 0.1s ease 0s;
 					&.active,
 					&:hover {
 						background: hsl(0, 9%, 98%);
@@ -251,6 +252,9 @@ body.popup-show::after {
 
 				.active {
 					transform: rotate(180deg);
+				}
+				.active_bt{
+						background: hsl(0, 9%, 96%);
 				}
 				// &.active,
 				// &:hover {

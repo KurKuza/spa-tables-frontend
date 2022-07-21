@@ -21,7 +21,9 @@ import { setLoading, setRows } from './Redux/slices/rowsSlice'
 function App() {
 	const dispatch = useDispatch()
 	const { rows, loading } = useSelector((state) => state.rows)
-	const { nameColumn, search } = useSelector((state) => state.sort)
+	const { nameColumn, search, strictСontent, toSmallerNumber } = useSelector(
+		(state) => state.sort,
+	)
 
 	const [sortRowsArr, setSortRowsArr] = React.useState([])
 	const [currentPage, setCurrentPage] = React.useState(1)
@@ -50,51 +52,96 @@ function App() {
 
 	//Сортируем по названию колонки
 	React.useEffect(() => {
-		function SortArrayByNameColumn(x, y) {
-			if (nameColumn === 'id') {
-				if (Number(x.id) < Number(y.id)) return -1
-				if (Number(x.id) > Number(y.id)) return 1
+		if (toSmallerNumber) {
+			function SortArrayByNameColumn(x, y) {
+				if (nameColumn === 'id') {
+					if (Number(x.id) < Number(y.id)) return -1
+					if (Number(x.id) > Number(y.id)) return 1
+				}
+				if (nameColumn === '') {
+					if (Number(x.id) < Number(y.id)) return -1
+					if (Number(x.id) > Number(y.id)) return 1
+				}
+				if (nameColumn === 'name') {
+					return x.name.localeCompare(y.name)
+				}
+				if (nameColumn === 'quantity') {
+					if (x.quantity < y.quantity) return -1
+					if (x.quantity > y.quantity) return 1
+				}
+				if (nameColumn === 'distance') {
+					if (Number(x.distance) < Number(y.distance)) return -1
+					if (Number(x.distance) > Number(y.distance)) return 1
+				}
 			}
-			if (nameColumn === '') {
-				if (Number(x.id) < Number(y.id)) return -1
-				if (Number(x.id) > Number(y.id)) return 1
+			setSortRowsArr(sortRowsArr.slice().sort(SortArrayByNameColumn))
+		} else {
+			function SortArrayByNameColumn(x, y) {
+				if (nameColumn === 'id') {
+					if (Number(x.id) < Number(y.id)) return 1
+					if (Number(x.id) > Number(y.id)) return -1
+				}
+				if (nameColumn === '') {
+					if (Number(x.id) < Number(y.id)) return 1
+					if (Number(x.id) > Number(y.id)) return -1
+				}
+				if (nameColumn === 'name') {
+					return y.name.localeCompare(x.name)
+				}
+				if (nameColumn === 'quantity') {
+					if (x.quantity < y.quantity) return 1
+					if (x.quantity > y.quantity) return -1
+				}
+				if (nameColumn === 'distance') {
+					if (Number(x.distance) < Number(y.distance)) return 1
+					if (Number(x.distance) > Number(y.distance)) return -1
+				}
 			}
-			if (nameColumn === 'name') {
-				return x.name.localeCompare(y.name)
-			}
-			if (nameColumn === 'quantity') {
-				if (x.quantity < y.quantity) return -1
-				if (x.quantity > y.quantity) return 1
-			}
-			if (nameColumn === 'distance') {
-				if (Number(x.distance) < Number(y.distance)) return -1
-				if (Number(x.distance) > Number(y.distance)) return 1
-			}
+			setSortRowsArr(sortRowsArr.slice().sort(SortArrayByNameColumn))
 		}
-
-		setSortRowsArr(sortRowsArr.slice().sort(SortArrayByNameColumn))
-	}, [loading, nameColumn])
+	}, [loading, nameColumn, toSmallerNumber])
 
 	//Поиск слов
 	React.useEffect(() => {
-		if (search) {
-			const wordSearch = search.toLowerCase()
+		if (!strictСontent) {
+			if (search) {
+				const wordSearch = search.toLowerCase()
 
-			const sortSearchArr = []
+				const sortSearchArr = []
 
-			for (const name in rows) {
-				if (Object.hasOwnProperty.call(rows, name)) {
-					const i = rows[name]
-					if (i.name.toLowerCase().includes(wordSearch)) {
-						sortSearchArr.push(i)
+				for (const name in rows) {
+					if (Object.hasOwnProperty.call(rows, name)) {
+						const i = rows[name]
+						if (i.name.toLowerCase().includes(wordSearch)) {
+							sortSearchArr.push(i)
+						}
 					}
 				}
+				setSortRowsArr(sortSearchArr)
+			} else {
+				setSortRowsArr(rows)
 			}
-			setSortRowsArr(sortSearchArr)
 		} else {
-			setSortRowsArr(rows)
+			if (search) {
+				const wordSearch = search.toLowerCase()
+
+				const sortSearchArr = []
+
+				for (const name in rows) {
+					if (Object.hasOwnProperty.call(rows, name)) {
+						const i = rows[name]
+						if (i.name.toLowerCase() === wordSearch) {
+							sortSearchArr.push(i)
+						}
+					}
+				}
+				setSortRowsArr(sortSearchArr)
+			} else {
+				setSortRowsArr(rows)
+			}
 		}
-	}, [loading, search])
+		setCurrentPage(1)
+	}, [loading, search, strictСontent])
 
 	// Получаем сколько кнопок пагинации будет
 	const indexOfLastPost = currentPage * postsPerPage

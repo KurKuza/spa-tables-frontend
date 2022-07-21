@@ -6,12 +6,19 @@ import iconFilterFilled from '../assets/img/codicon_filter-filled.svg'
 import icondropDown from '../assets/img/fe_drop-down.svg'
 import iconClose from '../assets/img/close.svg'
 
-import { setNameColumn, setSearch } from '../Redux/slices/sortSlice'
+import {
+	setNameColumn,
+	setSearch,
+	setStrictСontent,
+	setToSmallerNumber,
+} from '../Redux/slices/sortSlice'
 import { useDispatch, useSelector } from 'react-redux'
 
 function Sort({ keyNames }) {
 	const dispatch = useDispatch()
-	const { search, nameColumn } = useSelector((state) => state.sort)
+	const { search, nameColumn, strictСontent, toSmallerNumber } = useSelector(
+		(state) => state.sort,
+	)
 
 	const [open, setOpen] = React.useState(false)
 	const [dropDown, setDropDown] = React.useState(false)
@@ -106,10 +113,30 @@ function Sort({ keyNames }) {
 					</li>
 					{/* onChange={(value) => setSearchValue(value)} */}
 					<li>
-						<button className='Сondition__button'> = </button>
-						<button className='Сondition__button'> ?= </button>
-						<button className='Сondition__button'> ᐱ </button>
-						<button className='Сondition__button'> ᐯ </button>
+						<button
+							onClick={() => dispatch(setStrictСontent(true))}
+							className={cn('Сondition__button', { active_bt: strictСontent })}>
+							=
+						</button>
+						<button
+							onClick={() => dispatch(setStrictСontent(false))}
+							className={cn('Сondition__button', { active_bt: !strictСontent })}>
+							?=
+						</button>
+						<button
+							onClick={() => dispatch(setToSmallerNumber(true))}
+							className={cn('Сondition__button', {
+								active_bt: toSmallerNumber,
+							})}>
+							ᐱ
+						</button>
+						<button
+							onClick={() => dispatch(setToSmallerNumber(false))}
+							className={cn('Сondition__button', {
+								active_bt: !toSmallerNumber,
+							})}>
+							ᐯ
+						</button>
 					</li>
 					{/* <li>
 							<button style={{ width: '100%', height: '45px' }} type='submit'>
